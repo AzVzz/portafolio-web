@@ -1,15 +1,13 @@
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+        - PUBLIC_API_URL=${API_URL:-https://carrizales.dev}
     ports:
-      - "4300:4300"
-    environment:
-      - PUBLIC_API_URL=https://carrizales.dev
+      - "4300:80"
     depends_on:
       - backend
-    volumes:
-      - ./src:/app/src
-      - ./public:/app/public
 
   backend:
     build: ./backend
