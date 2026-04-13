@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "role": "Recreación de página web",
+    "company": "Residente. Food&Drink Media",
+    "date": "Actualmente",
+    "description": "Líder de equipo en el desarrollo de la página web de la revista Residente: Food & Drink Media. Desempeño funciones de Project Manager y programador, gestionando y coordinando el equipo de desarrollo para garantizar la máxima eficiencia en los proyectos, desde la planificación hasta la producción.",
+    "url": ""
+  },
+  {
+    "id": "2",
+    "role": "Creación página web y correos",
+    "company": "3G-Logistics",
+    "date": "Septiembre 2024",
+    "description": "Trabajé como desarrollador freelance 3G-Logistics diseñando y desarrollando su página web informativa utilizando React y Vite, encargandome de darle un diseño moderno que refleja la identidad de la empresa al igual de configurarle el dominio y los correos de la empresa.",
+    "url": ""
+  },
+  {
+    "id": "3",
+    "role": "Desarrollador Web",
+    "company": "Fama-technology",
+    "date": "Noviembre 2023 a Abril 2025",
+    "description": "Responsable en mantener las páginas, dominios y correos en orden y procurar fallas futuras, empezando a trabajar ahi por soporte técnico.",
+    "url": ""
+  }
+]

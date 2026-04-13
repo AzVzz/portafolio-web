@@ -1,0 +1,28 @@
+[
+  {
+    "id": "1",
+    "title": "E-commerce Full-Stack",
+    "description": "Tienda en línea con carrito de compras, pasarela de pagos y panel de administración.",
+    "image": "",
+    "url": "",
+    "tools": [
+      { "name": "React", "icon": "https://svgl.app/library/react_dark.svg" },
+      { "name": "Node.js", "icon": "https://svgl.app/library/nodejs.svg" },
+      { "name": "MongoDB", "icon": "https://svgl.app/library/mongodb-icon-dark.svg" },
+      { "name": "Tailwind CSS", "icon": "https://svgl.app/library/tailwindcss.svg" }
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Dashboard Analytics",
+    "description": "Panel de métricas en tiempo real con gráficas interactivas y reportes automatizados.",
+    "image": "",
+    "url": "",
+    "tools": [
+      { "name": "Next.js", "icon": "https://svgl.app/library/nextjs_icon_dark.svg" },
+      { "name": "TypeScript", "icon": "https://svgl.app/library/typescript.svg" },
+      { "name": "PostgreSQL", "icon": "https://svgl.app/library/postgresql.svg" },
+      { "name": "Prisma", "icon": "https://svgl.app/library/prisma_dark.svg" }
+    ]
+  }
+]

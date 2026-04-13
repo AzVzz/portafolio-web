@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroSection from '../components/HeroSection';
+import ExperienceSection from '../components/ExperienceSection';
+import ProjectsSection from '../components/ProjectsSection';
+---
+
+<Layout title="Azael - Portafolio" description="Portafolio web de Azael - Project Manager & Full-Stack Developer">
+	<main>
+		<HeroSection client:load />
+		<ExperienceSection client:load />
+		<ProjectsSection client:load />
+	</main>
+</Layout>

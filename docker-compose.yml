@@ -1,0 +1,21 @@
+services:
+  frontend:
+    build: .
+    ports:
+      - "4300:4300"
+    environment:
+      - PUBLIC_API_URL=http://localhost:4400
+    depends_on:
+      - backend
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+
+  backend:
+    build: ./backend
+    ports:
+      - "4400:4400"
+    environment:
+      - PORT=4400
+    volumes:
+      - ./backend/data:/app/data
