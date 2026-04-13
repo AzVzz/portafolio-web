@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { techCatalog, type Project, type TechTool } from '../../lib/store';
 import { fetchProjects, saveProjects, uploadFile } from '../../lib/api';
 
@@ -9,13 +9,48 @@ export default function ProjectsManager() {
   const [selectedTools, setSelectedTools] = useState<TechTool[]>([]);
   const [toolSearch, setToolSearch] = useState('');
   const [saved, setSaved] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const originalData = useRef<string>('');
 
   useEffect(() => {
-    fetchProjects().then(setProjects).catch(console.error);
+    const cached = localStorage.getItem('dashboard_projects_draft');
+    fetchProjects().then((data) => {
+      const serverData = data || [];
+      originalData.current = JSON.stringify(serverData);
+      if (cached && cached !== JSON.stringify(serverData)) {
+        const useDraft = window.confirm('Tienes cambios sin guardar en Proyectos. ¿Deseas restaurarlos?');
+        if (useDraft) {
+          setProjects(JSON.parse(cached));
+          setHasChanges(true);
+        } else {
+          setProjects(serverData);
+          localStorage.removeItem('dashboard_projects_draft');
+        }
+      } else {
+        setProjects(serverData);
+      }
+    }).catch(console.error);
   }, []);
+
+  const updateProjects = useCallback((newProjects: Project[]) => {
+    setProjects(newProjects);
+    setHasChanges(JSON.stringify(newProjects) !== originalData.current);
+    localStorage.setItem('dashboard_projects_draft', JSON.stringify(newProjects));
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) { e.preventDefault(); }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
 
   const handleSave = async () => {
     await saveProjects(projects);
+    originalData.current = JSON.stringify(projects);
+    setHasChanges(false);
+    localStorage.removeItem('dashboard_projects_draft');
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -24,7 +59,7 @@ export default function ProjectsManager() {
     if (!form.title.trim()) return;
 
     if (editing) {
-      setProjects(
+      updateProjects(
         projects.map((p) =>
           p.id === editing.id
             ? { ...p, title: form.title, description: form.description, image: form.image, url: form.url, tools: selectedTools }
@@ -33,7 +68,7 @@ export default function ProjectsManager() {
       );
       setEditing(null);
     } else {
-      setProjects([
+      updateProjects([
         ...projects,
         {
           id: crypto.randomUUID(),
@@ -56,7 +91,7 @@ export default function ProjectsManager() {
   };
 
   const handleDelete = (id: string) => {
-    setProjects(projects.filter((p) => p.id !== id));
+    updateProjects(projects.filter((p) => p.id !== id));
   };
 
   const toggleTool = (tool: TechTool) => {

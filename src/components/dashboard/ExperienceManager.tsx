@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { type Experience } from '../../lib/store';
 import { fetchExperience, saveExperience } from '../../lib/api';
 
@@ -7,13 +7,48 @@ export default function ExperienceManager() {
   const [editing, setEditing] = useState<Experience | null>(null);
   const [form, setForm] = useState({ role: '', company: '', date: '', description: '', url: '' });
   const [saved, setSaved] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const originalData = useRef<string>('');
 
   useEffect(() => {
-    fetchExperience().then(setItems).catch(console.error);
+    const cached = localStorage.getItem('dashboard_experience_draft');
+    fetchExperience().then((data) => {
+      const serverData = data || [];
+      originalData.current = JSON.stringify(serverData);
+      if (cached && cached !== JSON.stringify(serverData)) {
+        const useDraft = window.confirm('Tienes cambios sin guardar en Experiencia. ¿Deseas restaurarlos?');
+        if (useDraft) {
+          setItems(JSON.parse(cached));
+          setHasChanges(true);
+        } else {
+          setItems(serverData);
+          localStorage.removeItem('dashboard_experience_draft');
+        }
+      } else {
+        setItems(serverData);
+      }
+    }).catch(console.error);
   }, []);
+
+  const updateItems = useCallback((newItems: Experience[]) => {
+    setItems(newItems);
+    setHasChanges(JSON.stringify(newItems) !== originalData.current);
+    localStorage.setItem('dashboard_experience_draft', JSON.stringify(newItems));
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) { e.preventDefault(); }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
 
   const handleSave = async () => {
     await saveExperience(items);
+    originalData.current = JSON.stringify(items);
+    setHasChanges(false);
+    localStorage.removeItem('dashboard_experience_draft');
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -22,14 +57,14 @@ export default function ExperienceManager() {
     if (!form.role.trim() || !form.company.trim()) return;
 
     if (editing) {
-      setItems(items.map((i) =>
+      updateItems(items.map((i) =>
         i.id === editing.id
           ? { ...i, role: form.role, company: form.company, date: form.date, description: form.description, url: form.url }
           : i
       ));
       setEditing(null);
     } else {
-      setItems([
+      updateItems([
         ...items,
         {
           id: crypto.randomUUID(),
@@ -50,7 +85,7 @@ export default function ExperienceManager() {
   };
 
   const handleDelete = (id: string) => {
-    setItems(items.filter((i) => i.id !== id));
+    updateItems(items.filter((i) => i.id !== id));
   };
 
   const moveItem = (index: number, direction: -1 | 1) => {
@@ -58,7 +93,7 @@ export default function ExperienceManager() {
     if (newIndex < 0 || newIndex >= items.length) return;
     const copy = [...items];
     [copy[index], copy[newIndex]] = [copy[newIndex], copy[index]];
-    setItems(copy);
+    updateItems(copy);
   };
 
   return (

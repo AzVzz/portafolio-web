@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { iconOptions, type HeroData, type SocialLink } from '../../lib/store';
 import { fetchHero, saveHero, uploadFile } from '../../lib/api';
 import SocialIcon from '../icons/SocialIcon';
@@ -11,16 +11,54 @@ export default function HeroManager() {
   const [hero, setHero] = useState<HeroData>(defaultHero);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [hasChanges, setHasChanges] = useState(false);
+  const originalData = useRef<string>('');
 
   const [editingLink, setEditingLink] = useState<SocialLink | null>(null);
   const [linkForm, setLinkForm] = useState({ icon: 'globe', label: '', url: '' });
 
   useEffect(() => {
-    fetchHero().then((data) => { setHero(data); setLoading(false); }).catch(console.error);
+    const cached = localStorage.getItem('dashboard_hero_draft');
+    fetchHero().then((data) => {
+      const serverData = data || defaultHero;
+      originalData.current = JSON.stringify(serverData);
+      if (cached && cached !== JSON.stringify(serverData)) {
+        const useDraft = window.confirm('Tienes cambios sin guardar. ¿Deseas restaurarlos?');
+        if (useDraft) {
+          setHero(JSON.parse(cached));
+          setHasChanges(true);
+        } else {
+          setHero(serverData);
+          localStorage.removeItem('dashboard_hero_draft');
+        }
+      } else {
+        setHero(serverData);
+      }
+      setLoading(false);
+    }).catch(console.error);
   }, []);
+
+  const updateHero = useCallback((newHero: HeroData) => {
+    setHero(newHero);
+    setHasChanges(JSON.stringify(newHero) !== originalData.current);
+    localStorage.setItem('dashboard_hero_draft', JSON.stringify(newHero));
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
 
   const handleSave = async () => {
     await saveHero(hero);
+    originalData.current = JSON.stringify(hero);
+    setHasChanges(false);
+    localStorage.removeItem('dashboard_hero_draft');
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -29,7 +67,7 @@ export default function HeroManager() {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = await uploadFile(file);
-    setHero({ ...hero, photo: url });
+    updateHero({ ...hero, photo: url });
   };
 
   if (loading) return <p className="text-slate-400">Cargando...</p>;
@@ -39,7 +77,7 @@ export default function HeroManager() {
     if (!linkForm.label.trim() || !linkForm.url.trim()) return;
 
     if (editingLink) {
-      setHero({
+      updateHero({
         ...hero,
         links: hero.links.map((l) =>
           l.id === editingLink.id ? { ...l, icon: linkForm.icon, label: linkForm.label, url: linkForm.url } : l
@@ -47,7 +85,7 @@ export default function HeroManager() {
       });
       setEditingLink(null);
     } else {
-      setHero({
+      updateHero({
         ...hero,
         links: [...hero.links, { id: crypto.randomUUID(), icon: linkForm.icon, label: linkForm.label, url: linkForm.url }],
       });
@@ -61,7 +99,7 @@ export default function HeroManager() {
   };
 
   const handleDeleteLink = (id: string) => {
-    setHero({ ...hero, links: hero.links.filter((l) => l.id !== id) });
+    updateHero({ ...hero, links: hero.links.filter((l) => l.id !== id) });
   };
 
   return (
@@ -92,7 +130,7 @@ export default function HeroManager() {
             <input
               type="text"
               value={hero.photo}
-              onChange={(e) => setHero({ ...hero, photo: e.target.value })}
+              onChange={(e) => updateHero({ ...hero, photo: e.target.value })}
               className="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="/avatar.webp"
             />
@@ -109,7 +147,7 @@ export default function HeroManager() {
             <input
               type="text"
               value={hero.title}
-              onChange={(e) => setHero({ ...hero, title: e.target.value })}
+              onChange={(e) => updateHero({ ...hero, title: e.target.value })}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
@@ -118,7 +156,7 @@ export default function HeroManager() {
             <input
               type="text"
               value={hero.badge}
-              onChange={(e) => setHero({ ...hero, badge: e.target.value })}
+              onChange={(e) => updateHero({ ...hero, badge: e.target.value })}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Disponible para trabajar"
             />
@@ -127,7 +165,7 @@ export default function HeroManager() {
             <label className="block text-sm text-slate-400 mb-1">Descripción</label>
             <textarea
               value={hero.description}
-              onChange={(e) => setHero({ ...hero, description: e.target.value })}
+              onChange={(e) => updateHero({ ...hero, description: e.target.value })}
               rows={3}
               className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
             />
