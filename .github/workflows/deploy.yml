@@ -16,6 +16,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           command_timeout: 15m
           script: |
+            cd /var/www/vhosts/carrizales.dev/httpdocs && docker compose down 2>/dev/null || true
             REPO_DIR=/opt/portafolio-web
             if [ ! -d "$REPO_DIR/.git" ]; then
               git clone https://github.com/AzVzz/portafolio-web.git $REPO_DIR
