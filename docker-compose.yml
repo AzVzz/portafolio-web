@@ -4,7 +4,7 @@ services:
     ports:
       - "4300:4300"
     environment:
-      - PUBLIC_API_URL=http://localhost:4400
+      - PUBLIC_API_URL=https://carrizales.dev
     depends_on:
       - backend
     volumes:
