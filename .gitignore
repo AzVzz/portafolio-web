@@ -25,4 +25,4 @@ pnpm-debug.log*
 
 # backend
 backend/node_modules/
-backend/data/uploads/
+backend/data/
