@@ -197,6 +197,7 @@ export const techCatalog: TechTool[] = [
   { name: 'Flutter', icon: 'https://svgl.app/library/flutter.svg' },
   { name: 'Figma', icon: 'https://svgl.app/library/figma.svg' },
   { name: 'Stripe', icon: 'https://svgl.app/library/stripe.svg' },
+  { name: 'MariaDB', icon: 'https://svgl.app/library/mariadb.svg' },
 ];
 
 // ── Icons ──
