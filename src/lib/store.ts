@@ -196,6 +196,7 @@ export const techCatalog: TechTool[] = [
   { name: 'Vercel', icon: 'https://svgl.app/library/vercel_dark.svg' },
   { name: 'Flutter', icon: 'https://svgl.app/library/flutter.svg' },
   { name: 'Figma', icon: 'https://svgl.app/library/figma.svg' },
+  { name: 'Stripe', icon: 'https://svgl.app/library/stripe.svg' },
 ];
 
 // ── Icons ──
