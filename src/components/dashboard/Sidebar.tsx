@@ -12,9 +12,10 @@ const navItems = [
 interface SidebarProps {
   activeSection: string;
   onNavigate: (key: string) => void;
+  onLogout?: () => void;
 }
 
-export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
+export default function Sidebar({ activeSection, onNavigate, onLogout }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -49,13 +50,21 @@ export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
       </nav>
 
       {!collapsed && (
-        <div className="absolute bottom-4 left-4">
+        <div className="absolute bottom-4 left-4 space-y-2">
           <a
             href="/"
-            className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+            className="block text-sm text-slate-500 hover:text-slate-300 transition-colors"
           >
             ← Volver al portafolio
           </a>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="text-sm text-red-400 hover:text-red-300 transition-colors"
+            >
+              Cerrar sesión
+            </button>
+          )}
         </div>
       )}
     </aside>

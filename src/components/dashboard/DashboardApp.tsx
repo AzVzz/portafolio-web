@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { isAuthenticated, logout } from '../../lib/api';
+import LoginForm from './LoginForm';
 import Sidebar from './Sidebar';
 import HeroManager from './HeroManager';
 import PostsManager from './PostsManager';
@@ -7,7 +9,17 @@ import TextsManager from './TextsManager';
 import ExperienceManager from './ExperienceManager';
 
 export default function DashboardApp() {
+  const [loggedIn, setLoggedIn] = useState(isAuthenticated());
   const [activeSection, setActiveSection] = useState('hero');
+
+  if (!loggedIn) {
+    return <LoginForm onLogin={() => setLoggedIn(true)} />;
+  }
+
+  const handleLogout = () => {
+    logout();
+    setLoggedIn(false);
+  };
 
   const renderSection = () => {
     switch (activeSection) {
@@ -35,7 +47,7 @@ export default function DashboardApp() {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar activeSection={activeSection} onNavigate={setActiveSection} />
+      <Sidebar activeSection={activeSection} onNavigate={setActiveSection} onLogout={handleLogout} />
       <main className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-4xl">
           {renderSection()}
