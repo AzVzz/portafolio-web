@@ -121,10 +121,10 @@ export default function ProjectsManager() {
         <button
           onClick={handleSave}
           className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            saved ? 'bg-green-600 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            saved ? 'bg-green-600 text-white' : hasChanges ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'
           }`}
         >
-          {saved ? 'Guardado!' : 'Guardar cambios'}
+          {saved ? 'Guardado!' : hasChanges ? 'Cambios sin guardar' : 'Guardar cambios'}
         </button>
       </div>
 
