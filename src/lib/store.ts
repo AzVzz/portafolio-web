@@ -198,6 +198,8 @@ export const techCatalog: TechTool[] = [
   { name: 'Figma', icon: 'https://svgl.app/library/figma.svg' },
   { name: 'Stripe', icon: 'https://svgl.app/library/stripe.svg' },
   { name: 'MariaDB', icon: 'https://svgl.app/library/mariadb.svg' },
+  { name: 'WordPress', icon: 'https://svgl.app/library/wordpress-icon.svg' },
+  { name: 'Elementor', icon: 'https://svgl.app/library/elementor.svg' },
 ];
 
 // ── Icons ──
