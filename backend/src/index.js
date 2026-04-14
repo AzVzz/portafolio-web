@@ -23,10 +23,10 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Rutas protegidas
-app.use('/api/hero', authMiddleware, heroRouter);
-app.use('/api/experience', authMiddleware, experienceRouter);
-app.use('/api/projects', authMiddleware, projectsRouter);
+// GET público (lectura para el portafolio), PUT/POST protegido (escritura desde dashboard)
+app.use('/api/hero', (req, res, next) => req.method === 'GET' ? next() : authMiddleware(req, res, next), heroRouter);
+app.use('/api/experience', (req, res, next) => req.method === 'GET' ? next() : authMiddleware(req, res, next), experienceRouter);
+app.use('/api/projects', (req, res, next) => req.method === 'GET' ? next() : authMiddleware(req, res, next), projectsRouter);
 app.use('/api/uploads', authMiddleware, uploadsRouter);
 
 app.listen(PORT, '0.0.0.0', () => {
